@@ -1,0 +1,81 @@
+<?xml version="1.0"?>
+<!-- Sample build file used to retrieve svnant's sources -->
+<project name="jbracket" basedir="." default="runAll">
+  
+  <!--  all properties are in build.properties --> 
+  <property file="build.properties" /> 
+
+  <!-- path to the svnant libraries. Usually they will be located in ANT_HOME/lib -->
+  <path id="svnant.classpath">
+    <fileset dir="${lib.dir}">
+      <include name="**/*.jar"/>
+    </fileset>
+  </path>  
+  
+  <!-- load the svn task -->
+  <typedef resource="org/tigris/subversion/svnant/svnantlib.xml" classpathref="svnant.classpath" />
+	
+  <target name="runAll">
+  	<antcall target="clean" />
+  	<antcall target="checkoutThis" />
+  	<antcall target="compile" />
+  	<!--<antcall target="test" />-->
+  	<antcall target="mail" />
+  </target>
+  
+  <target name="clean">
+    <delete dir="${output.dir}"/>  
+  </target>
+
+  <target name="checkoutThis">
+    <svn username="${repository.user}" password="${repository.passwd}">
+      <checkout url="${repository.url}" revision="HEAD" destPath="${output.dir}" />
+    </svn>
+  </target>
+	
+  <target name="compile">
+   <mkdir dir="${output.dir.build}"/>
+  	     
+   <javac srcdir="${output.dir.src}"
+          destdir="${output.dir.build}"
+          debug="on"
+          source="1.6">
+   	  <classpath>
+        <fileset dir="${output.dir.lib}/">
+          <include name="**/*.jar"/>
+        </fileset>
+        <pathelement path="${java.class.path}"/>
+      </classpath>
+   </javac>
+  </target>
+	
+  <target name="test">
+  	<jar destfile="${output.dir}/jbracket.jar" basedir="${output.dir.build}"/>
+  	<junit>
+  	      <formatter type="brief" usefile="true" />
+  	     
+  	      <classpath>
+  	        <fileset dir="${lib.dir}/">
+  	          <include name="**/*.jar"/>
+  	        </fileset>
+  	        <pathelement location="${output.dir}/jbracket.jar" />
+  	        <pathelement path="${java.class.path}"/>
+  	      </classpath>
+  	</junit>
+  </target>
+	
+  <target name="mail">
+  	<zip destfile="${output.dir.antzip}">
+  	    <fileset dir="${output.dir.src.tests}" />
+  	    <fileset dir="." includes="build.xml"/>
+  	  </zip>
+  	<mail 	from="${mail.from}"
+  			tolist="${mail.tolist}"
+  			subject="${mail.subject}"
+  			message="${mail.message}"
+  			files="${output.dir.antzip}"
+  			smtphost="h.smtp.vanderbilt.edu"
+  		/>
+  </target>
+	
+</project>
