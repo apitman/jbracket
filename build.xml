@@ -16,10 +16,10 @@
   <typedef resource="org/tigris/subversion/svnant/svnantlib.xml" classpathref="svnant.classpath" />
 	
   <target name="runAll">
-  	<antcall target="clean" />
+  	<!--<antcall target="clean" />-->
   	<antcall target="checkoutThis" />
   	<antcall target="compile" />
-  	<!--<antcall target="test" />-->
+  	<antcall target="test" />
   	<antcall target="mail" />
   </target>
   
@@ -53,11 +53,13 @@
   	<jar destfile="${output.dir}/jbracket.jar" basedir="${output.dir.build}"/>
   	<junit>
   	      <formatter type="brief" usefile="true" />
-  	     
-  	      <classpath>
-  	        <fileset dir="${lib.dir}/">
-  	          <include name="**/*.jar"/>
-  	        </fileset>
+  	      <!-- ADD TEST COMMAND SOMEWHERE HERE
+  	      <test name="fullpath to test suite class" todir="output file" />
+  	      -->
+  		  <classpath>
+  		  	<fileset dir="${lib.dir}/">
+  		  	  <include name="**/*.jar"/>
+  		  	</fileset>
   	        <pathelement location="${output.dir}/jbracket.jar" />
   	        <pathelement path="${java.class.path}"/>
   	      </classpath>
@@ -74,7 +76,11 @@
   			subject="${mail.subject}"
   			message="${mail.message}"
   			files="${output.dir.antzip}"
-  			smtphost="h.smtp.vanderbilt.edu"
+  			mailhost="h.smtp.vanderbilt.edu"
+  			mailport="465"
+  			ssl="on"
+  			user="hartsoka"
+  			password=""
   		/>
   </target>
 	
